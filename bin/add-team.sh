@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TEAM=$(yq r ${PARAMS_YAML} common.team)
+TEAM=${1} # (yq r ${PARAMS_YAML} common.team)
 OKTA_API_KEY=$(yq r ${PARAMS_YAML} okta.api-key)
 OKTA_AUTH_SERVER_CN=$(yq r ${PARAMS_YAML} okta.auth-server-fqdn)
 
@@ -49,9 +49,8 @@ function check_namespace() {
     local cluster="${1}"
     local workspace="${2}"
     local name="${3}"
-    tmc cluster namespace get --name "${name}" \
-        --workspace-name ${workspace} --cluster-name ${cluster} \
-        --management-cluster-name attached  --provisioner-name attached 2>/dev/null
+    tmc cluster namespace get "${name}" --cluster-name ${cluster} \
+        --management-cluster-name attached  --provisioner-name attached 
 }
 
 function add_namespace() {
@@ -72,7 +71,7 @@ fi
 
 CONCOURSE_MAIN_TARGET=$(yq r ${PARAMS_YAML} common.concourseMainTarget)
 if [[ -z $(fly -t ${CONCOURSE_MAIN_TARGET} teams --json | jq -r --arg team ${TEAM} '.[] | select ( .name == $team ) .name') ]] ; then
-    fly -t ${CONCOURSE_MAIN_TARGET} set-team --team-name ${TEAM} --oidc-group ${TEAM}-devs --non-interactive
+    fly -t ${CONCOURSE_MAIN_TARGET} set-team --team-name ${TEAM} --oidc-group ${TEAM}-devs --oidc-group platform-team --non-interactive
 fi
 
 if ! check_workspace ${WORKLOAD_WORKSPACE} ; then
@@ -89,16 +88,29 @@ if ! check_namespace ${WORKLOAD_CLUSTER} ${WORKLOAD_WORKSPACE} ${STAGING_NAMESPA
 fi
 
 SECRETS_NAMESPACE=concourse-${TEAM}
-if ! check_namespace ${SHARED_SERVICES_CLUSTER} ${STAGING_NAMESPACE} ; then
+if ! check_namespace ${SHARED_SERVICES_CLUSTER} ${PLATFORM_WORKSPACE} ${SECRETS_NAMESPACE} ; then
     add_namespace ${SHARED_SERVICES_CLUSTER} ${PLATFORM_WORKSPACE} ${SECRETS_NAMESPACE} "Steeltoe music store concourse secret store"
 fi
+
+TBS_NAMESPACE=tbs-project-${TEAM}
+HARBOR_DOMAIN=$(yq r $PARAMS_YAML commonSecrets.harborDomain)
+REGISTRY_USER=$(yq r $PARAMS_YAML commonSecrets.harborUser)
+REGISTRY_PASSWORD=$(yq r $PARAMS_YAML commonSecrets.harborPassword)
+if ! check_namespace ${SHARED_SERVICES_CLUSTER} ${PLATFORM_WORKSPACE} ${TBS_NAMESPACE} ; then
+    add_namespace ${SHARED_SERVICES_CLUSTER} ${PLATFORM_WORKSPACE} ${TBS_NAMESPACE} "Steeltoe music store TBS build namespace"
+    kp secret create harbor-creds \
+      --registry $HARBOR_DOMAIN \
+      --registry-user $REGISTRY_USER \
+      --namespace $TBS_NAMESPACE
+fi
+
 
 SHAREDSVC_CLUSTER_NAME=$(yq r ${PARAMS_YAML} clusters.shared-services-cluster)
 PREVIOUS_CONTEXT=$(kubectl config current-context)
 # Install secrets in Shared Services Cluster
 kubectl config use-context $SHAREDSVC_CLUSTER_NAME-admin@$SHAREDSVC_CLUSTER_NAME
 
-ytt -f concourse/team -f ${PARAMS_YAML} --ignore-unknown-comments | 
-    kapp deploy -n tanzu-kapp -a ${TEAM}-secrets -f - -y
+ytt -f concourse/team -f ${PARAMS_YAML} -v common.team=${TEAM} --ignore-unknown-comments | 
+    kapp deploy -n tanzu-kapp -a concourse-team-${TEAM} -f - -y
 
 kubectl config use-context ${PREVIOUS_CONTEXT}
