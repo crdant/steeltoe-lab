@@ -11,25 +11,32 @@ resources:
     uri: ((musicstore.codeRepo))
     paths:
      - "k8s/**"
+- name: infrastructure-repo
+  type: git
+  source:
+    uri: ((musicstore.infraRepo))
+    paths:
+     - "k8s/**"
+    branch: feature/application-scan
 - name: service-image
   type: registry-image
   source:
-    repository: ((musicstore.service-image))
+    repository: ((common.harborDomain))/((musicstore.project))/((musicstore.service-image))
     tag: latest
 - name: ui-image
   type: registry-image
   source:
-    repository: ((musicstore.ui-image))
+    repository: ((common.harborDomain))/((musicstore.project))/((musicstore.ui-image))
     tag: latest
 - name: order-image
   type: registry-image
   source:
-    repository: ((musicstore.order-image))
+    repository: ((common.harborDomain))/((musicstore.project))/((musicstore.order-image))
     tag: latest
 - name: cart-image
   type: registry-image
   source:
-    repository: ((musicstore.cart-image))
+    repository: ((common.harborDomain))/((musicstore.project))/((musicstore.cart-image))
     tag: latest
 - name: version
   type: semver
@@ -208,7 +215,7 @@ jobs:
                   --local-path source-code/src/MusicStoreService
               else
                 kp image create steeltoe-musicstore-service \
-                  --tag ((musicstore.service-image)) \
+                  --tag ((common.harborDomain))/((musicstore.project))/((musicstore.service-image)) \
                   --cluster-builder default \
                   --namespace ((musicstore.tbsNamespace)) \
                   --wait \
@@ -256,7 +263,7 @@ jobs:
                   --local-path source-code/src/MusicStoreUI
               else
                 kp image create steeltoe-musicstore-ui \
-                  --tag ((musicstore.ui-image)) \
+                  --tag ((common.harborDomain))/((musicstore.project))/((musicstore.ui-image)) \
                   --cluster-builder default \
                   --namespace ((musicstore.tbsNamespace)) \
                   --wait \
@@ -304,7 +311,7 @@ jobs:
                   --local-path source-code/src/OrderService
               else
                 kp image create steeltoe-musicstore-order-service \
-                  --tag ((musicstore.order-image)) \
+                  --tag ((common.harborDomain))/((musicstore.project))/((musicstore.order-image)) \
                   --cluster-builder default \
                   --namespace ((musicstore.tbsNamespace)) \
                   --wait \
@@ -352,7 +359,7 @@ jobs:
                   --local-path source-code/src/ShoppingCartService
               else
                 kp image create steeltoe-musicstore-cart-service \
-                  --tag ((musicstore.cart-image)) \
+                  --tag ((common.harborDomain))/((musicstore.project))/((musicstore.cart-image)) \
                   --cluster-builder default \
                   --namespace ((musicstore.tbsNamespace)) \
                   --wait \
