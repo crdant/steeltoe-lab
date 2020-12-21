@@ -453,11 +453,12 @@ jobs:
               echo $WORKLOAD_KUBECONFIG > workload-kubeconfig.json
 
               export KUBECONFIG=build-kubeconfig.json
-              digests=$(kubectl get image -o json | jq '[ .items[] | { "name": .metadata.name, "image": .status.latestImage } ]')
-              export UI_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-ui").image')
-              export SERVICE_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-service").image')
-              export ORDER_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-order-service").image')
-              export CART_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-cart-service").image')
+              digests=$(kubectl get image -o json -n ((musicstore.tbsNamespace)) | jq '[ .items[] | { "name": .metadata.name, "image": .status.latestImage } ]')
+              host_suffix=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-ui").image | split(":")[1][1:12]')
+              ui_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-ui").image')
+              service_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-service").image')
+              order_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-order-service").image')
+              cart_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-cart-service").image')
 
               export KUBECONFIG=workload-kubeconfig.json
 
@@ -465,14 +466,11 @@ jobs:
               #@data/values
               ---
               musicstore:
-                host: ((musicstore.stagingPrefix))-${UI_DIGEST:7:17}.((musicstore.stagingDomain))
-                serviceImage: ${SERVICE_IMAGE}
-                uiImage: ${UI_IMAGE}
-                orderImage: ${ORDER_IMAGE}
-                cartImage: ${CART_IMAGE}
-              registry:
-                host: ((common.harborDomain))
-                project: ((musicstore.project))
+                host: ((musicstore.stagingPrefix))-${host_suffix}.((musicstore.stagingDomain))
+                serviceImage: ${service_image}
+                uiImage: ${ui_image}
+                orderImage: ${order_image}
+                cartImage: ${cart_image}
               VALUES
             
               cat > config-repo/k8s/issuer.yaml <<OVERLAY
@@ -645,11 +643,11 @@ jobs:
               echo $WORKLOAD_KUBECONFIG > workload-kubeconfig.json
 
               export KUBECONFIG=build-kubeconfig.json
-              digests=$(kubectl get image -o json | jq '[ .items[] | { "name": .metadata.name, "image": .status.latestImage } ]')
-              export UI_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-ui").image')
-              export SERVICE_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-service").image')
-              export ORDER_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-order-service").image')
-              export CART_IMAGE=$(jq -r '.[] | select(.name == "steeltoe-musicstore-cart-service").image')
+              digests=$(kubectl get image -o json -n ((musicstore.tbsNamespace)) | jq '[ .items[] | { "name": .metadata.name, "image": .status.latestImage } ]')
+              ui_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-ui").image')
+              service_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-service").image')
+              order_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-order-service").image')
+              cart_image=$(echo "${digests}" | jq -r '.[] | select(.name == "steeltoe-musicstore-cart-service").image')
 
               export KUBECONFIG=workload-kubeconfig.json
 
@@ -658,13 +656,10 @@ jobs:
               ---
               musicstore:
                 host: ((musicstore.host))
-                serviceImage: ${SERVICE_IMAGE}
-                uiImage: ${UI_IMAGE}
-                orderImage: ${ORDER_IMAGE}
-                cartImage: ${CART_IMAGE}
-              registry:
-                host: ((common.harborDomain))
-                project: ((musicstore.project))
+                serviceImage: ${service_image}
+                uiImage: ${ui_image}
+                orderImage: ${order_image}
+                cartImage: ${cart_image}
               VALUES
               cat config-repo/k8s/values.yml
               
