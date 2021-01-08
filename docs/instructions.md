@@ -14,7 +14,7 @@ further into that Lab rather than into the next step for this one.
 
 ## Installing
 
-0. [Setup the Foundational Lab and Bonus Labs](https://github.com/doddatpivotal/tkg-lab-e2e-adaptation/blob/main/00-tkg-lab-foundation.md), 
+0. [Setup the Foundational Lab and Bonus Labs](https://github.com/doddatpivotal/tkg-lab-e2e-adaptation/blob/main/docs/00-tkg-lab-foundation.md), 
    follow the steps as documented in [@doddatpivotal's repository](https://github.com/doddatpivotal/tkg-lab-e2e-adaptation)
    and its references to the [original lab](https://github.com/Tanzu-Solutions-Engineering/tkg-lab).
 1. [Configure parameters for this lab](01-lab-parameter-setup.md) another step
