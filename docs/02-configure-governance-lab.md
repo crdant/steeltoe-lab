@@ -44,4 +44,4 @@ repository:
 
 ## Next Step
 
-[Configure the Music Store team](03-setup-team.md)
+[Update Harbor configuration](03-additional-harbor-config.md)
