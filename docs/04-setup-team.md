@@ -51,4 +51,4 @@ tmc get workspaces
 
 ## Next Step
 
-[Prepare TMC polices](05-prepare-tmc-policy.md)
+[Prepare Spring Cloud infrastructure](05-prepare-spring-cloud-infra.md)
