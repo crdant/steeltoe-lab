@@ -19,7 +19,7 @@ further into that Lab rather than into the next step for this one.
    and its references to the [original lab](https://github.com/Tanzu-Solutions-Engineering/tkg-lab).
 1. [Configure parameters for this lab](01-lab-parameter-setup.md) another step
    where I leaned heavily on [@doddatpivotal](https://github.com/doddatpivotal) and also on
-   the updates I made in [Tanzu Governance Labn](https://github.com/tanzu-end-to-end/governance-lab) 
+   the updates I made in [Tanzu Governance Lab](https://github.com/tanzu-end-to-end/governance-lab) 
    since this parameter file is adapted from his.
 2. [Configure Governance Lab Components](02-configure-governance-lab.md) to prepare several
    of the trust and control points that are also used in this lab.
