@@ -19,9 +19,9 @@ repository:
 
 1. Change to the directory you cloned the governance 
 
-2. Make sure the environment variable $PARAMS_YAML is set to point to your 
-   configuration for this lab. It's important that you do this after step 1
-   to avoid Direnv clobbering the value.
+2. Make sure the environment variable `PARAMS_YAML` is set to point to your 
+   configuration for this lab. It's important that you do this after changing 
+   into the directory to avoid Direnv clobbering the value.
 
 3. [Prepare your Harbor registry](https://github.com/tanzu-end-to-end/governance-lab/blob/main/docs/02-prepare-registry.md) with the required 
    Okta users, projects, and replications.
